@@ -31,8 +31,8 @@ if "/" not in LLM_MODEL:
 LLM_PROVIDER = LLM_MODEL.split("/", 1)[0]
 CLAUDE_THINKING = os.getenv("CLAUDE_THINKING", "false").strip().lower() == "true"
 # Fail-fast controls so a stuck/slow provider surfaces an error instead of hanging.
-LLM_TIMEOUT = float(os.getenv("LLM_TIMEOUT", "90"))
-LLM_NUM_RETRIES = int(os.getenv("LLM_NUM_RETRIES", "2"))
+LLM_TIMEOUT = float(os.getenv("LLM_TIMEOUT", "30"))
+LLM_NUM_RETRIES = int(os.getenv("LLM_NUM_RETRIES", "1"))
 
 # Provider API keys (LiteLLM reads these from the environment; loaded here via .env).
 ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY", "").strip()

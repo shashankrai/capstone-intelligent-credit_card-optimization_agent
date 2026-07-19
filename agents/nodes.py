@@ -51,7 +51,7 @@ def memory_load_node(state: AgentState) -> AgentState:
 # --------------------------------------------------------------------------- #
 def classify_node(state: AgentState) -> AgentState:
     state["stage"] = "classify"
-    parsed, usage = llm.complete_json(prompts.CLASSIFY_SYSTEM, state["query"], prompts.CLASSIFY_SCHEMA)
+    parsed, usage = llm.complete_json(prompts.CLASSIFY_SYSTEM, state["query"], prompts.CLASSIFY_SCHEMA, max_tokens=512)
     _add_tokens(state, usage)
 
     prefs = state.get("preferences") or {}
@@ -309,7 +309,7 @@ def generate_node(state: AgentState) -> AgentState:
         f"CALCULATOR RESULTS (authoritative — use these numbers):\n{results}\n\n"
         "Write the grounded recommendation following the required section structure."
     )
-    answer, usage = llm.complete(prompts.ANSWER_SYSTEM, user, max_tokens=2000, thinking=True)
+    answer, usage = llm.complete(prompts.ANSWER_SYSTEM, user, max_tokens=1200, thinking=True)
     _add_tokens(state, usage)
     state["final_answer"] = answer
     return state
@@ -326,7 +326,7 @@ def guardrail_node(state: AgentState) -> AgentState:
         f"CALCULATOR RESULTS:\n{_render_results(state)}\n\n"
         f"ASSISTANT DRAFT ANSWER:\n{state.get('final_answer', '')}"
     )
-    result, usage = llm.complete_json(prompts.GUARDRAIL_SYSTEM, payload, prompts.GUARDRAIL_SCHEMA)
+    result, usage = llm.complete_json(prompts.GUARDRAIL_SYSTEM, payload, prompts.GUARDRAIL_SCHEMA, max_tokens=512)
     _add_tokens(state, usage)
     state["guardrail"] = result or {"passed": True, "reason": "guardrail check unavailable"}
     if not state["guardrail"].get("passed", True):
