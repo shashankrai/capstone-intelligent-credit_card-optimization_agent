@@ -331,6 +331,7 @@
     <li><a href="#make">Makefile Shortcuts</a></li>
     <li><a href="#tests">Tests &amp; Evaluations</a></li>
     <li><a href="#providers">Switching LLM Provider</a></li>
+    <li><a href="#shared">Sharing One DB with the Team</a></li>
     <li><a href="#trouble">Troubleshooting</a></li>
     <li><a href="#envref">Environment Variables Reference</a></li>
     <li><a href="#checklist">Quick-Start Checklist</a></li>
@@ -354,6 +355,7 @@
 <div class="os-tabs">
   <button class="os-tab active" onclick="switchOS(event,'mac')">macOS (Homebrew)</button>
   <button class="os-tab" onclick="switchOS(event,'ubuntu')">Ubuntu / Debian / WSL2</button>
+  <button class="os-tab" onclick="switchOS(event,'windows')">Windows (PowerShell)</button>
 </div>
 
 <div id="os-mac" class="os-panel active">
@@ -385,6 +387,55 @@ sudo systemctl enable postgresql</span>
 
 <span class="comment"># pgvector</span>
 <span class="cmd">sudo apt install postgresql-16-pgvector -y</span></pre>
+</div>
+
+<div id="os-windows" class="os-panel">
+<div class="callout danger" style="margin-top:12px">
+  <strong>Fix for: ConnectionTimeout: connection timeout expired on port 5432</strong>
+  PostgreSQL is not installed or not running on this machine. Use Option A (Docker) — it takes 3 minutes and requires no manual extension setup.
+</div>
+
+<h4>Option A — Docker Desktop (recommended for Windows)</h4>
+<p>Install <a href="https://www.docker.com/products/docker-desktop/" style="color:var(--blue)">Docker Desktop for Windows</a>, then run in PowerShell:</p>
+<pre><span class="comment"># Pull and start postgres + pgvector in one command</span>
+<span class="cmd">docker run -d `
+  --name cc-rewards-db `
+  -e POSTGRES_DB=credit_rewards `
+  -e POSTGRES_USER=postgres `
+  -e POSTGRES_PASSWORD=postgres `
+  -p 5432:5432 `
+  pgvector/pgvector:pg16</span>
+
+<span class="comment"># Verify container is running</span>
+<span class="cmd">docker ps</span></pre>
+
+<p>Set these in your <code>.env</code> file:</p>
+<pre><span class="var">PGHOST</span>=<span class="val">localhost</span>
+<span class="var">PGPORT</span>=<span class="val">5432</span>
+<span class="var">PGDATABASE</span>=<span class="val">credit_rewards</span>
+<span class="var">PGUSER</span>=<span class="val">postgres</span>
+<span class="var">PGPASSWORD</span>=<span class="val">postgres</span></pre>
+
+<h4>Option B — Native PostgreSQL installer</h4>
+<p>Download the PostgreSQL 16 installer from <a href="https://www.postgresql.org/download/windows/" style="color:var(--blue)">postgresql.org/download/windows</a>. After install, open <strong>Stack Builder</strong> → select PostgreSQL 16 → tick <strong>pgvector</strong> → Install.</p>
+<pre><span class="comment"># In SQL Shell (psql) or pgAdmin:</span>
+<span class="cmd">CREATE DATABASE credit_rewards;
+\c credit_rewards
+CREATE EXTENSION IF NOT EXISTS vector;</span></pre>
+
+<h4>Python commands on Windows (use <code>python</code> not <code>python3</code>)</h4>
+<pre><span class="comment"># Create and activate venv</span>
+<span class="cmd">python -m venv .venv
+.venv\Scripts\activate</span>
+
+<span class="comment"># Install packages</span>
+<span class="cmd">pip install -r requirements.txt</span>
+
+<span class="comment"># Seed database</span>
+<span class="cmd">python seed.py</span>
+
+<span class="comment"># Run the app</span>
+<span class="cmd">python -m streamlit run app/streamlit_app.py</span></pre>
 </div>
 
 <!-- STEP 2 -->
@@ -632,6 +683,21 @@ Setup complete.</span></pre>
 <h2 id="trouble">Troubleshooting</h2>
 
 <div class="trouble">
+  <div class="trouble-q">⚠ ConnectionTimeout: connection timeout expired (Windows / port 5432)</div>
+  <div class="trouble-a">
+    PostgreSQL is not installed on this machine. Quickest fix — use Docker:
+    <pre><span class="cmd">docker run -d --name cc-rewards-db `
+  -e POSTGRES_DB=credit_rewards `
+  -e POSTGRES_USER=postgres `
+  -e POSTGRES_PASSWORD=postgres `
+  -p 5432:5432 pgvector/pgvector:pg16</span></pre>
+    Then set <code>PGUSER=postgres</code> and <code>PGPASSWORD=postgres</code> in <code>.env</code>.
+    <br><br>
+    No Docker? Use the native installer: <a href="https://www.postgresql.org/download/windows/" style="color:var(--blue)">postgresql.org/download/windows</a> → run installer → open Stack Builder → install pgvector.
+  </div>
+</div>
+
+<div class="trouble">
   <div class="trouble-q">⚠ psql: error: connection refused</div>
   <div class="trouble-a">
     PostgreSQL is not running. Start it:
@@ -697,6 +763,70 @@ pip install -r requirements.txt</span></pre>
     <pre><span class="cmd">python3 seed.py --extract</span></pre>
   </div>
 </div>
+
+<!-- SHARED DB -->
+<h2 id="shared">Sharing One PostgreSQL with the Team</h2>
+<p>Instead of every person installing PostgreSQL, one machine hosts the DB and teammates point their <code>.env</code> at it.</p>
+
+<div class="callout info">
+  <strong>When to use this</strong>
+  Best for demos and code reviews where the team doesn't want to each seed their own database. One person (the host) seeds the data once; everyone else just sets <code>PGHOST</code> to the host's IP.
+</div>
+
+<h3>Step A — Allow remote connections on the host machine (macOS)</h3>
+<pre><span class="comment"># Find the config file location</span>
+<span class="cmd">psql -c "SHOW config_file;"</span>
+<span class="comment"># Usually: /opt/homebrew/var/postgresql@16/postgresql.conf</span>
+
+<span class="comment"># 1. Edit postgresql.conf
+#    Find:   listen_addresses = 'localhost'
+#    Change: listen_addresses = '*'</span>
+<span class="cmd">nano /opt/homebrew/var/postgresql@16/postgresql.conf</span>
+
+<span class="comment"># 2. Edit pg_hba.conf — allow password auth from any IP
+#    Add at the bottom:
+#    host  credit_rewards  all  0.0.0.0/0  scram-sha-256</span>
+<span class="cmd">nano /opt/homebrew/var/postgresql@16/pg_hba.conf</span>
+
+<span class="comment"># 3. Set a password for the DB user</span>
+<span class="cmd">psql -c "ALTER USER shashank.rai PASSWORD 'choose_a_password';"</span>
+
+<span class="comment"># 4. Restart PostgreSQL to apply changes</span>
+<span class="cmd">brew services restart postgresql@16</span>
+
+<span class="comment"># 5. Find your machine's local IP — share this with teammates</span>
+<span class="cmd">ipconfig getifaddr en0</span>
+<span class="comment"># Example: 192.168.1.42</span></pre>
+
+<h3>Step B — Test connectivity from a teammate's Windows machine</h3>
+<pre><span class="comment"># In PowerShell — should say TcpTestSucceeded : True</span>
+<span class="cmd">Test-NetConnection -ComputerName 192.168.1.42 -Port 5432</span></pre>
+
+<h3>Step C — Teammates set .env to point at the host</h3>
+<pre><span class="comment"># Each teammate's .env — replace IP and password</span>
+<span class="var">PGHOST</span>=<span class="val">192.168.1.42</span>
+<span class="var">PGPORT</span>=<span class="val">5432</span>
+<span class="var">PGDATABASE</span>=<span class="val">credit_rewards</span>
+<span class="var">PGUSER</span>=<span class="val">shashank.rai</span>
+<span class="var">PGPASSWORD</span>=<span class="val">choose_a_password</span></pre>
+
+<div class="callout tip">
+  <strong>Teammates do NOT run seed.py</strong>
+  Data is already on the host machine. They only need: Python + venv + <code>pip install -r requirements.txt</code> + the .env above + run the app.
+</div>
+
+<h3>Option: Supabase free cloud PostgreSQL (accessible from anywhere)</h3>
+<p>Supabase has pgvector built in — good for demos accessible outside a local network.</p>
+<table>
+  <tr><th>Step</th><th>Action</th></tr>
+  <tr><td>1</td><td>Create a free project at <a href="https://supabase.com" style="color:var(--blue)">supabase.com</a></td></tr>
+  <tr><td>2</td><td>Dashboard → <strong>Settings → Database</strong> → copy connection details</td></tr>
+  <tr><td>3</td><td>Set <code>PGHOST=db.&lt;ref&gt;.supabase.co</code>, <code>PGUSER=postgres</code>, <code>PGPASSWORD=&lt;your password&gt;</code> in <code>.env</code></td></tr>
+  <tr><td>4</td><td>Run <code>python3 seed.py</code> once to create schema and seed data</td></tr>
+  <tr><td>5</td><td>Share the same .env values with teammates — everyone connects to the same cloud DB</td></tr>
+</table>
+
+<hr>
 
 <!-- ENV REF -->
 <h2 id="envref">Environment Variables — Full Reference</h2>

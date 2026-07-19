@@ -56,9 +56,89 @@ sudo systemctl enable postgresql
 sudo apt install postgresql-16-pgvector -y
 ```
 
-### Windows (WSL2)
+### Windows (Native — PowerShell)
 
-Use Ubuntu instructions above inside WSL2. PostgreSQL on native Windows is possible but not recommended for this project.
+> This is the fix for the `ConnectionTimeout: connection timeout expired` error on Windows.
+
+**Option A — Docker Desktop (easiest, recommended for Windows)**
+
+Docker gives you PostgreSQL + pgvector in one command, no manual extension setup needed.
+
+1. Install [Docker Desktop for Windows](https://www.docker.com/products/docker-desktop/)
+2. Start Docker Desktop, then run:
+
+```powershell
+# Pull and start a postgres+pgvector container
+docker run -d `
+  --name cc-rewards-db `
+  -e POSTGRES_DB=credit_rewards `
+  -e POSTGRES_USER=postgres `
+  -e POSTGRES_PASSWORD=postgres `
+  -p 5432:5432 `
+  pgvector/pgvector:pg16
+
+# Verify it is running
+docker ps
+```
+
+3. Set these values in your `.env`:
+```
+PGHOST=localhost
+PGPORT=5432
+PGDATABASE=credit_rewards
+PGUSER=postgres
+PGPASSWORD=postgres
+```
+
+4. Continue from **Step 4** (install Python packages).
+
+---
+
+**Option B — Native PostgreSQL installer on Windows**
+
+1. Download the PostgreSQL 16 installer from [postgresql.org/download/windows](https://www.postgresql.org/download/windows/)
+2. Run the installer — use the default port `5432`, set a password for the `postgres` user.
+3. After install, open **Stack Builder** (launches automatically) → select your PostgreSQL 16 installation → expand **Add-ons, tools and utilities** → tick **pgvector** → Install.
+4. Open **pgAdmin** or **SQL Shell (psql)** and run:
+
+```sql
+CREATE DATABASE credit_rewards;
+\c credit_rewards
+CREATE EXTENSION IF NOT EXISTS vector;
+```
+
+5. Set these in your `.env`:
+```
+PGHOST=localhost
+PGPORT=5432
+PGDATABASE=credit_rewards
+PGUSER=postgres
+PGPASSWORD=<the password you set during install>
+```
+
+---
+
+**Python on Windows — use `python` not `python3`**
+
+```powershell
+# Create venv
+python -m venv .venv
+
+# Activate
+.venv\Scripts\activate
+
+# Install packages
+pip install -r requirements.txt
+
+# Run app
+python -m streamlit run app/streamlit_app.py
+```
+
+---
+
+### WSL2 (Ubuntu inside Windows)
+
+Use the Ubuntu / Debian instructions above inside WSL2. This is the smoothest Windows experience — PostgreSQL behaves exactly like Linux.
 
 ---
 
@@ -461,6 +541,83 @@ python3 seed.py --extract
 | `EMBED_BACKEND` | `auto` | `auto` / `fastembed` / `hashing` |
 | `EMBED_MODEL` | `BAAI/bge-small-en-v1.5` | Embedding model name |
 | `EMBED_DIM` | `384` | Embedding vector dimension |
+
+---
+
+## Sharing One PostgreSQL with the Team
+
+If you want everyone to connect to **one central database** instead of each person running their own, follow these steps on the machine that hosts PostgreSQL (the Mac running the seeded DB).
+
+### Step A — Allow remote connections on the host machine (macOS)
+
+```bash
+# Find the PostgreSQL config folder
+psql -c "SHOW config_file;"
+# Usually: /opt/homebrew/var/postgresql@16/postgresql.conf
+
+# 1. Edit postgresql.conf — change listen address
+#    Find:   listen_addresses = 'localhost'
+#    Change: listen_addresses = '*'
+nano /opt/homebrew/var/postgresql@16/postgresql.conf
+
+# 2. Edit pg_hba.conf — allow password login from any IP
+#    Add this line at the bottom:
+#    host  credit_rewards  all  0.0.0.0/0  scram-sha-256
+nano /opt/homebrew/var/postgresql@16/pg_hba.conf
+
+# 3. Set a password for your DB user (required for remote auth)
+psql -c "ALTER USER shashank.rai PASSWORD 'choose_a_password';"
+
+# 4. Restart PostgreSQL to apply changes
+brew services restart postgresql@16
+
+# 5. Find your machine's local IP
+ipconfig getifaddr en0
+# Example output: 192.168.1.42
+```
+
+### Step B — Open the firewall port (macOS)
+
+macOS does not block port 5432 by default. If you are on a corporate network, check that port 5432 is reachable between machines — test from a teammate's machine:
+
+```powershell
+# Windows PowerShell — test connectivity
+Test-NetConnection -ComputerName 192.168.1.42 -Port 5432
+# TcpTestSucceeded : True  means it is reachable
+```
+
+### Step C — Team members set `.env` to point at the host
+
+Each team member adds these lines to their `.env` (replace the IP and password):
+
+```dotenv
+PGHOST=192.168.1.42        # IP of the machine running PostgreSQL
+PGPORT=5432
+PGDATABASE=credit_rewards
+PGUSER=shashank.rai        # the DB user on the host
+PGPASSWORD=choose_a_password
+```
+
+Team members **do NOT run** `seed.py` — the data is already on the host. They only need:
+1. Python + venv + `pip install -r requirements.txt`
+2. The `.env` file above
+3. `python -m streamlit run app/streamlit_app.py` (or `python cli.py`)
+
+### Option: Use Supabase free tier (cloud PostgreSQL with pgvector)
+
+Supabase has pgvector built in and a generous free tier — good for demos accessible from anywhere.
+
+1. Create a free project at [supabase.com](https://supabase.com)
+2. In the Supabase dashboard → **Settings → Database** → copy the connection string
+3. Set in `.env`:
+```dotenv
+PGHOST=db.<your-project-ref>.supabase.co
+PGPORT=5432
+PGDATABASE=postgres
+PGUSER=postgres
+PGPASSWORD=<supabase db password>
+```
+4. Run `python3 seed.py` once to create schema and seed data into Supabase.
 
 ---
 
