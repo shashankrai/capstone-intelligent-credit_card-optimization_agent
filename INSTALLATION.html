@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Installation & Local Setup Guide</title>
+<style>
+  :root {
+    --blue: #1a56db;
+    --dark: #111827;
+    --mid: #374151;
+    --light: #6b7280;
+    --bg: #f9fafb;
+    --border: #e5e7eb;
+    --code-bg: #1e293b;
+    --code-fg: #e2e8f0;
+    --green: #065f46;
+    --green-bg: #ecfdf5;
+    --green-border: #6ee7b7;
+    --yellow-bg: #fffbeb;
+    --yellow: #78350f;
+    --red-bg: #fef2f2;
+    --red: #7f1d1d;
+    --purple-bg: #f5f3ff;
+    --purple: #4c1d95;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    font-size: 13.5px;
+    line-height: 1.65;
+    color: var(--dark);
+    background: white;
+    max-width: 980px;
+    margin: 0 auto;
+    padding: 32px 40px 60px;
+  }
+
+  /* ── Cover ── */
+  .cover {
+    background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 60%, #1a56db 100%);
+    color: white;
+    border-radius: 12px;
+    padding: 40px 48px;
+    margin-bottom: 40px;
+  }
+  .cover h1 { font-size: 26px; font-weight: 700; margin-bottom: 4px; }
+  .cover .sub { font-size: 14px; opacity: 0.75; margin-bottom: 24px; }
+  .cover .badges { display: flex; flex-wrap: wrap; gap: 8px; }
+  .badge {
+    background: rgba(255,255,255,0.12);
+    border: 1px solid rgba(255,255,255,0.25);
+    border-radius: 20px;
+    padding: 3px 12px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+  }
+
+  /* ── TOC ── */
+  .toc {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px 28px;
+    margin-bottom: 40px;
+  }
+  .toc h3 { font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--light); margin-bottom: 12px; }
+  .toc ol { padding-left: 20px; }
+  .toc li { margin: 4px 0; }
+  .toc a { color: var(--blue); text-decoration: none; font-size: 13px; }
+  .toc a:hover { text-decoration: underline; }
+
+  /* ── Headings ── */
+  h2 {
+    font-size: 19px;
+    font-weight: 700;
+    color: var(--dark);
+    margin: 44px 0 14px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid var(--blue);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    page-break-after: avoid;
+  }
+  h2 .num {
+    background: var(--blue);
+    color: white;
+    border-radius: 50%;
+    width: 26px; height: 26px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+  h3 {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--mid);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin: 22px 0 8px;
+    page-break-after: avoid;
+  }
+  h4 {
+    font-size: 13.5px;
+    font-weight: 700;
+    color: var(--dark);
+    margin: 16px 0 6px;
+  }
+  p { color: var(--mid); margin-bottom: 10px; }
+
+  /* ── Tables ── */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 12px 0 20px;
+    font-size: 12.5px;
+    page-break-inside: avoid;
+  }
+  th {
+    background: var(--dark);
+    color: white;
+    text-align: left;
+    padding: 8px 14px;
+    font-weight: 600;
+    font-size: 11px;
+    letter-spacing: 0.3px;
+  }
+  td { padding: 7px 14px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  tr:nth-child(even) td { background: var(--bg); }
+  td code { background: #f1f5f9; padding: 1px 6px; border-radius: 3px; font-size: 11.5px; }
+
+  /* ── Code blocks ── */
+  pre {
+    background: var(--code-bg);
+    color: var(--code-fg);
+    border-radius: 8px;
+    padding: 16px 20px;
+    font-size: 12px;
+    line-height: 1.7;
+    overflow-x: auto;
+    margin: 10px 0 18px;
+    position: relative;
+    page-break-inside: avoid;
+  }
+  pre .comment { color: #64748b; }
+  pre .cmd     { color: #67e8f9; }
+  pre .var     { color: #fde68a; }
+  pre .val     { color: #86efac; }
+  pre .section { color: #a5b4fc; font-weight: 600; }
+  code {
+    background: #f1f5f9;
+    color: #0f172a;
+    padding: 1px 6px;
+    border-radius: 4px;
+    font-family: "SF Mono", Menlo, Monaco, "Courier New", monospace;
+    font-size: 12px;
+  }
+
+  /* ── Callouts ── */
+  .callout {
+    border-left: 4px solid;
+    border-radius: 0 8px 8px 0;
+    padding: 12px 16px;
+    margin: 14px 0;
+    page-break-inside: avoid;
+  }
+  .callout.tip    { border-color: #10b981; background: var(--green-bg); color: var(--green); }
+  .callout.warn   { border-color: #f59e0b; background: var(--yellow-bg); color: var(--yellow); }
+  .callout.danger { border-color: #ef4444; background: var(--red-bg); color: var(--red); }
+  .callout.info   { border-color: #3b82f6; background: #eff6ff; color: #1e3a8a; }
+  .callout strong { font-weight: 700; display: block; margin-bottom: 3px; font-size: 12px; text-transform: uppercase; letter-spacing: 0.3px; }
+
+  /* ── OS tabs ── */
+  .os-tabs { display: flex; gap: 0; margin: 12px 0 0; border-bottom: 2px solid var(--border); }
+  .os-tab {
+    padding: 7px 18px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    background: none;
+    color: var(--light);
+    border-bottom: 2px solid transparent;
+    margin-bottom: -2px;
+    transition: all 0.15s;
+  }
+  .os-tab.active { color: var(--blue); border-bottom-color: var(--blue); }
+  .os-panel { display: none; padding-top: 4px; }
+  .os-panel.active { display: block; }
+
+  /* ── Provider cards ── */
+  .providers { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin: 14px 0 20px; }
+  .provider {
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px 16px;
+    position: relative;
+    page-break-inside: avoid;
+  }
+  .provider.recommended { border-color: #3b82f6; background: #eff6ff; }
+  .provider .pname { font-weight: 700; font-size: 13px; color: var(--dark); margin-bottom: 2px; }
+  .provider .pmodel { font-family: monospace; font-size: 11.5px; color: var(--blue); margin-bottom: 6px; }
+  .provider .pcost { font-size: 11px; color: var(--light); }
+  .provider .ptag {
+    position: absolute; top: 10px; right: 10px;
+    background: #3b82f6; color: white;
+    font-size: 10px; font-weight: 700;
+    padding: 2px 8px; border-radius: 10px;
+    letter-spacing: 0.3px;
+  }
+
+  /* ── Step cards ── */
+  .steps { counter-reset: step; }
+  .step-item {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 8px;
+    align-items: flex-start;
+  }
+  .step-num {
+    background: var(--dark);
+    color: white;
+    border-radius: 50%;
+    width: 22px; height: 22px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 700;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .step-text { color: var(--mid); font-size: 13px; }
+
+  /* ── Checklist ── */
+  .checklist {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px 24px;
+    margin: 16px 0;
+    page-break-inside: avoid;
+  }
+  .checklist h3 { margin-top: 0; }
+  .check-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 7px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+  }
+  .check-item:last-child { border-bottom: none; }
+  .check-box {
+    width: 18px; height: 18px;
+    border: 2px solid var(--border);
+    border-radius: 4px;
+    flex-shrink: 0;
+    margin-top: 1px;
+    background: white;
+  }
+  .check-label { color: var(--mid); }
+  .check-label code { font-size: 12px; }
+
+  /* ── Troubleshoot ── */
+  .trouble {
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    margin: 10px 0;
+    overflow: hidden;
+    page-break-inside: avoid;
+  }
+  .trouble-q {
+    background: #fef3c7;
+    padding: 10px 16px;
+    font-weight: 600;
+    font-size: 12.5px;
+    color: #78350f;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .trouble-a { padding: 12px 16px; font-size: 12.5px; color: var(--mid); }
+  .trouble-a pre { margin: 8px 0 0; }
+
+  /* ── Env table highlight ── */
+  td.key { font-family: monospace; font-size: 12px; color: #0f172a; white-space: nowrap; }
+  td.default { font-family: monospace; font-size: 11.5px; color: var(--light); }
+
+  hr { border: none; border-top: 1px solid var(--border); margin: 36px 0; }
+
+  @media print {
+    body { padding: 0; }
+    h2 { page-break-before: always; }
+    h2:first-of-type { page-break-before: avoid; }
+  }
+</style>
+</head>
+<body>
+
+<!-- COVER -->
+<div class="cover">
+  <h1>Installation &amp; Local Setup Guide</h1>
+  <div class="sub">Intelligent Credit Card &amp; Rewards Optimization Agent — step-by-step for macOS, Linux, and WSL2</div>
+  <div class="badges">
+    <span class="badge">Python 3.11+</span>
+    <span class="badge">PostgreSQL 16+</span>
+    <span class="badge">pgvector</span>
+    <span class="badge">Gemini / Anthropic / OpenAI / Ollama</span>
+    <span class="badge">Streamlit UI</span>
+    <span class="badge">FastAPI</span>
+    <span class="badge">CLI</span>
+  </div>
+</div>
+
+<!-- TOC -->
+<div class="toc">
+  <h3>Contents</h3>
+  <ol>
+    <li><a href="#prereqs">Prerequisites</a></li>
+    <li><a href="#step1">Install System Dependencies</a></li>
+    <li><a href="#step2">Get the Code</a></li>
+    <li><a href="#step3">Create the Virtual Environment</a></li>
+    <li><a href="#step4">Install Python Packages</a></li>
+    <li><a href="#step5">Set Up PostgreSQL Database</a></li>
+    <li><a href="#step6">Configure the .env File</a></li>
+    <li><a href="#step7">Run the Seed Pipeline</a></li>
+    <li><a href="#step8">Launch the App</a></li>
+    <li><a href="#make">Makefile Shortcuts</a></li>
+    <li><a href="#tests">Tests &amp; Evaluations</a></li>
+    <li><a href="#providers">Switching LLM Provider</a></li>
+    <li><a href="#trouble">Troubleshooting</a></li>
+    <li><a href="#envref">Environment Variables Reference</a></li>
+    <li><a href="#checklist">Quick-Start Checklist</a></li>
+  </ol>
+</div>
+
+<!-- PREREQUISITES -->
+<h2 id="prereqs">Prerequisites</h2>
+<table>
+  <tr><th>Requirement</th><th>Minimum Version</th><th>Check Command</th><th>Notes</th></tr>
+  <tr><td><strong>Python</strong></td><td>3.11+</td><td><code>python3 --version</code></td><td>3.12 recommended</td></tr>
+  <tr><td><strong>PostgreSQL</strong></td><td>16+</td><td><code>psql --version</code></td><td>Must be running</td></tr>
+  <tr><td><strong>pgvector</strong></td><td>0.7+</td><td>checked after DB setup</td><td>Enables vector search</td></tr>
+  <tr><td><strong>Git</strong></td><td>any</td><td><code>git --version</code></td><td>To clone the repo</td></tr>
+  <tr><td><strong>LLM API key</strong></td><td>—</td><td>—</td><td>Gemini free tier works; Ollama needs no key</td></tr>
+</table>
+
+<!-- STEP 1 -->
+<h2 id="step1"><span class="num">1</span> Install System Dependencies</h2>
+
+<div class="os-tabs">
+  <button class="os-tab active" onclick="switchOS(event,'mac')">macOS (Homebrew)</button>
+  <button class="os-tab" onclick="switchOS(event,'ubuntu')">Ubuntu / Debian / WSL2</button>
+</div>
+
+<div id="os-mac" class="os-panel active">
+<pre><span class="comment"># Install Homebrew (skip if already installed)</span>
+<span class="cmd">/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"</span>
+
+<span class="comment"># Python 3.12</span>
+<span class="cmd">brew install python@3.12</span>
+
+<span class="comment"># PostgreSQL 16</span>
+<span class="cmd">brew install postgresql@16</span>
+
+<span class="comment"># Start PostgreSQL now and on every login</span>
+<span class="cmd">brew services start postgresql@16</span>
+
+<span class="comment"># pgvector extension</span>
+<span class="cmd">brew install pgvector</span></pre>
+</div>
+
+<div id="os-ubuntu" class="os-panel">
+<pre><span class="comment"># Python</span>
+<span class="cmd">sudo apt update
+sudo apt install python3.12 python3.12-venv python3.12-dev -y</span>
+
+<span class="comment"># PostgreSQL 16</span>
+<span class="cmd">sudo apt install postgresql-16 postgresql-client-16 -y
+sudo systemctl start postgresql
+sudo systemctl enable postgresql</span>
+
+<span class="comment"># pgvector</span>
+<span class="cmd">sudo apt install postgresql-16-pgvector -y</span></pre>
+</div>
+
+<!-- STEP 2 -->
+<h2 id="step2"><span class="num">2</span> Get the Code</h2>
+<pre><span class="cmd">git clone &lt;your-repo-url&gt;
+cd capstone-intelligent-credit_card-optimization_agent</span></pre>
+
+<!-- STEP 3 -->
+<h2 id="step3"><span class="num">3</span> Create the Python Virtual Environment</h2>
+<pre><span class="comment"># Create a fresh venv from the project root</span>
+<span class="cmd">python3 -m venv .venv</span>
+
+<span class="comment"># Activate — macOS / Linux / WSL2</span>
+<span class="cmd">source .venv/bin/activate</span>
+
+<span class="comment"># Your prompt now shows (.venv) — you're inside the venv</span></pre>
+
+<div class="callout warn">
+  <strong>Moved the project folder?</strong>
+  Virtual environments store absolute paths. If you moved or copied the project directory, the venv breaks. Delete it and recreate:
+  <br><br>
+  <code>rm -rf .venv &amp;&amp; python3 -m venv .venv &amp;&amp; source .venv/bin/activate</code>
+</div>
+
+<!-- STEP 4 -->
+<h2 id="step4"><span class="num">4</span> Install Python Packages</h2>
+<pre><span class="comment"># Upgrade pip first</span>
+<span class="cmd">pip install --upgrade pip</span>
+
+<span class="comment"># Install all dependencies</span>
+<span class="cmd">pip install -r requirements.txt</span></pre>
+
+<div class="callout warn">
+  <strong>Corporate network / TLS-inspecting proxy?</strong>
+  If pip fails with <code>SSL: CERTIFICATE_VERIFY_FAILED</code>, use pre-built wheels to skip the Rust compile step:
+  <br><br>
+  <code>pip install --only-binary=:all: -r requirements.txt</code>
+</div>
+
+<h3>What Gets Installed</h3>
+<table>
+  <tr><th>Package</th><th>Purpose</th></tr>
+  <tr><td><code>litellm</code></td><td>Provider-agnostic LLM calls — Anthropic, Gemini, OpenAI, Ollama via one interface</td></tr>
+  <tr><td><code>anthropic</code></td><td>Native Anthropic client (needed for web-search tool)</td></tr>
+  <tr><td><code>langgraph</code>, <code>langchain-core</code></td><td>Agent graph orchestration + state management</td></tr>
+  <tr><td><code>fastembed</code></td><td>Local ONNX embedding model — no embedding API key needed</td></tr>
+  <tr><td><code>psycopg[binary]</code>, <code>pgvector</code></td><td>PostgreSQL driver + vector search client</td></tr>
+  <tr><td><code>SQLAlchemy</code></td><td>ORM for user profiles and feedback tables</td></tr>
+  <tr><td><code>pymupdf</code></td><td>PDF text extraction</td></tr>
+  <tr><td><code>fastapi</code>, <code>uvicorn</code></td><td>REST API backend</td></tr>
+  <tr><td><code>streamlit</code></td><td>Web demo UI</td></tr>
+  <tr><td><code>truststore</code></td><td>OS trust store injection — makes HTTPS work behind corporate proxies</td></tr>
+  <tr><td><code>python-dotenv</code>, <code>pydantic</code></td><td>Config loading and request validation</td></tr>
+</table>
+
+<!-- STEP 5 -->
+<h2 id="step5"><span class="num">5</span> Set Up the PostgreSQL Database</h2>
+
+<h3>5a — Create the Database</h3>
+<div class="os-tabs">
+  <button class="os-tab active" onclick="switchOS(event,'dbmac')">macOS (Homebrew)</button>
+  <button class="os-tab" onclick="switchOS(event,'dblinux')">Linux / WSL2</button>
+</div>
+<div id="os-dbmac" class="os-panel active">
+<pre><span class="comment"># On Homebrew, your OS user is already a superuser — no password needed</span>
+<span class="cmd">createdb credit_rewards</span></pre>
+</div>
+<div id="os-dblinux" class="os-panel">
+<pre><span class="comment"># Switch to the postgres system user first</span>
+<span class="cmd">sudo -u postgres createdb credit_rewards
+sudo -u postgres psql -c "CREATE USER $(whoami) WITH SUPERUSER;"</span></pre>
+</div>
+
+<h3>5b — Enable pgvector Extension</h3>
+<pre><span class="cmd">psql -d credit_rewards -c "CREATE EXTENSION IF NOT EXISTS vector;"</span></pre>
+
+<h3>5c — Verify</h3>
+<pre><span class="cmd">psql -d credit_rewards -c "SELECT extversion FROM pg_extension WHERE extname='vector';"</span>
+<span class="comment"># Expected output:
+#  extversion
+# ------------
+#   0.8.x</span></pre>
+
+<!-- STEP 6 -->
+<h2 id="step6"><span class="num">6</span> Configure the .env File</h2>
+<pre><span class="cmd">cp .env.example .env</span></pre>
+<p>Open <code>.env</code> in any editor. You must fill in two things: your <strong>LLM provider key</strong> and your <strong>PostgreSQL username</strong>.</p>
+
+<pre><span class="section"># ── LLM Provider — pick ONE block, comment out the others ────────────────────</span>
+
+<span class="comment"># Option A: Gemini (free tier — easiest to start)</span>
+<span class="var">LLM_MODEL</span>=<span class="val">gemini/gemini-2.5-flash</span>
+<span class="var">GEMINI_API_KEY</span>=<span class="val">your_gemini_key_here</span>
+
+<span class="comment"># Option B: Anthropic / Claude</span>
+<span class="comment"># LLM_MODEL=anthropic/claude-opus-4-8</span>
+<span class="comment"># ANTHROPIC_API_KEY=sk-ant-xxxxxxxxxxxxxxxxxxxx</span>
+
+<span class="comment"># Option C: OpenAI</span>
+<span class="comment"># LLM_MODEL=openai/gpt-4o-mini</span>
+<span class="comment"># OPENAI_API_KEY=sk-xxxxxxxxxxxxxxxxxxxx</span>
+
+<span class="comment"># Option D: Local Ollama (no key, fully offline)</span>
+<span class="comment"># LLM_MODEL=ollama/llama3.1</span>
+<span class="comment"># OLLAMA_API_BASE=http://localhost:11434</span>
+
+<span class="section"># ── PostgreSQL ────────────────────────────────────────────────────────────────</span>
+<span class="var">PGHOST</span>=<span class="val">localhost</span>
+<span class="var">PGPORT</span>=<span class="val">5432</span>
+<span class="var">PGDATABASE</span>=<span class="val">credit_rewards</span>
+<span class="var">PGUSER</span>=<span class="val">your_os_username</span>     <span class="comment"># run: whoami</span>
+<span class="var">PGPASSWORD</span>=                   <span class="comment"># leave blank for Homebrew / socket auth</span>
+
+<span class="section"># ── Embeddings (no API key needed) ────────────────────────────────────────────</span>
+<span class="comment"># auto = tries fastembed, falls back to hashing</span>
+<span class="comment"># hashing = no model download (best on corporate/restricted networks)</span>
+<span class="comment"># fastembed = downloads ONNX model on first run (~90 MB)</span>
+<span class="var">EMBED_BACKEND</span>=<span class="val">auto</span>
+<span class="var">EMBED_MODEL</span>=<span class="val">BAAI/bge-small-en-v1.5</span>
+<span class="var">EMBED_DIM</span>=<span class="val">384</span></pre>
+
+<div class="callout tip">
+  <strong>Find your PostgreSQL username</strong>
+  Run <code>whoami</code> in the terminal — that is your PGUSER value on a Homebrew setup.
+</div>
+
+<!-- STEP 7 -->
+<h2 id="step7"><span class="num">7</span> Run the Seed Pipeline</h2>
+<p>This one command: creates the database schema → ingests all 5 card documents → populates reward rules.</p>
+<pre><span class="comment"># Make sure venv is activated</span>
+<span class="cmd">python3 seed.py</span></pre>
+
+<p>Expected output:</p>
+<pre><span class="val">[1/3] Initialising schema ...  done
+[2/3] Ingesting card documents ...
+  axis_atlas.md             → 12 chunks
+  hdfc_diners_club_black.md → 14 chunks
+  hdfc_infinia.md           → 11 chunks
+  amex_platinum_travel.md   → 13 chunks
+  sbi_cashback.md           →  9 chunks
+[3/3] Seeding structured reward rules ...  55 rules, 18 transfer partners
+Setup complete.</span></pre>
+
+<h3>Verify the Data</h3>
+<pre><span class="cmd">psql -d credit_rewards -c "SELECT COUNT(*) FROM card_documents;"</span>   <span class="comment"># → 5</span>
+<span class="cmd">psql -d credit_rewards -c "SELECT COUNT(*) FROM reward_rules;"</span>       <span class="comment"># → 55</span>
+<span class="cmd">psql -d credit_rewards -c "SELECT COUNT(*) FROM document_chunks;"</span>    <span class="comment"># → ~59</span></pre>
+
+<div class="callout info">
+  <strong>LLM-powered rule extraction (optional)</strong>
+  The default seed uses hand-authored fallback rules. To re-extract rules using the LLM from the ingested documents (takes ~2–3 minutes, needs API key):
+  <br><br>
+  <code>python3 seed.py --extract</code>
+</div>
+
+<!-- STEP 8 -->
+<h2 id="step8"><span class="num">8</span> Launch the App</h2>
+
+<h3>Option A — Streamlit Web UI (recommended for demo)</h3>
+<pre><span class="cmd">python3 -m streamlit run app/streamlit_app.py</span></pre>
+<p>Open: <strong>http://localhost:8501</strong></p>
+<p>The sidebar confirms status — look for:</p>
+<div class="steps">
+  <div class="step-item"><div class="step-num">✓</div><div class="step-text">Database: <strong>🟢 connected</strong></div></div>
+  <div class="step-item"><div class="step-num">✓</div><div class="step-text">LLM ready: <strong>🟢 yes</strong></div></div>
+  <div class="step-item"><div class="step-num">✓</div><div class="step-text">Model shows your configured provider</div></div>
+</div>
+
+<h3>Option B — Command-Line Interface</h3>
+<pre><span class="comment"># Interactive REPL</span>
+<span class="cmd">python3 cli.py</span>
+
+<span class="comment"># One-shot query</span>
+<span class="cmd">python3 cli.py -q "I am spending Rs 50000 on flights. I have Axis Atlas and HDFC DCB. Which card?"</span></pre>
+
+<h3>Option C — FastAPI REST Backend</h3>
+<pre><span class="cmd">python3 -m uvicorn backend.main:app --port 8000 --reload</span></pre>
+<p>API: <strong>http://localhost:8000</strong> &nbsp;·&nbsp; Interactive docs: <strong>http://localhost:8000/docs</strong></p>
+
+<!-- MAKE -->
+<h2 id="make">Makefile Shortcuts</h2>
+<table>
+  <tr><th>Command</th><th>What it does</th></tr>
+  <tr><td><code>make ui</code></td><td>Launch Streamlit UI at http://localhost:8501</td></tr>
+  <tr><td><code>make cli</code></td><td>Interactive CLI agent</td></tr>
+  <tr><td><code>make api</code></td><td>FastAPI backend at http://localhost:8000</td></tr>
+  <tr><td><code>make seed</code></td><td>Reset and reseed the entire database</td></tr>
+  <tr><td><code>make test</code></td><td>Run unit + integration tests</td></tr>
+  <tr><td><code>make eval</code></td><td>Run all 4 evaluation scripts</td></tr>
+</table>
+<div class="callout warn">
+  <strong>Makefile uses .venv/bin directly</strong>
+  If you moved the project folder and recreated the venv, the Makefile will work correctly. If <code>make ui</code> fails with "bad interpreter", use <code>python3 -m streamlit run app/streamlit_app.py</code> instead.
+</div>
+
+<!-- TESTS -->
+<h2 id="tests">Tests &amp; Evaluations</h2>
+<h3>Unit + Integration Tests</h3>
+<pre><span class="comment"># Unit tests — no database or API key needed</span>
+<span class="cmd">python3 tests/test_calculator.py</span>
+
+<span class="comment"># Integration tests — needs seeded database, no API key needed</span>
+<span class="cmd">python3 tests/test_retrieval.py</span>
+
+<span class="comment"># Both at once</span>
+<span class="cmd">python3 tests/test_calculator.py &amp;&amp; python3 tests/test_retrieval.py</span></pre>
+
+<h3>Evaluation Scripts</h3>
+<table>
+  <tr><th>Script</th><th>What it measures</th><th>Needs API key?</th></tr>
+  <tr><td><code>evaluation/rag_eval.py</code></td><td>Precision@K, Recall@K, MRR on retrieval</td><td>No</td></tr>
+  <tr><td><code>evaluation/calculation_eval.py</code></td><td>Exact match on reward calculations</td><td>No</td></tr>
+  <tr><td><code>evaluation/hallucination_eval.py</code></td><td>LLM-as-judge faithfulness ratio</td><td>Yes</td></tr>
+  <tr><td><code>evaluation/evaluate.py</code></td><td>Golden answer end-to-end accuracy</td><td>Yes</td></tr>
+</table>
+
+<!-- PROVIDERS -->
+<h2 id="providers">Switching the LLM Provider</h2>
+<p>Change <code>LLM_MODEL</code> in <code>.env</code> and restart the app — no code changes needed.</p>
+<div class="providers">
+  <div class="provider recommended">
+    <div class="ptag">Recommended</div>
+    <div class="pname">Google Gemini</div>
+    <div class="pmodel">gemini/gemini-2.5-flash</div>
+    <div class="pcost">Free tier available · Set GEMINI_API_KEY</div>
+  </div>
+  <div class="provider">
+    <div class="pname">Anthropic Claude</div>
+    <div class="pmodel">anthropic/claude-opus-4-8</div>
+    <div class="pcost">Paid · Set ANTHROPIC_API_KEY · Best quality</div>
+  </div>
+  <div class="provider">
+    <div class="pname">OpenAI GPT</div>
+    <div class="pmodel">openai/gpt-4o-mini</div>
+    <div class="pcost">Paid · Set OPENAI_API_KEY</div>
+  </div>
+  <div class="provider">
+    <div class="pname">Ollama (Local)</div>
+    <div class="pmodel">ollama/llama3.1</div>
+    <div class="pcost">Free · No API key · Fully offline · Install Ollama first</div>
+  </div>
+</div>
+
+<!-- TROUBLESHOOTING -->
+<h2 id="trouble">Troubleshooting</h2>
+
+<div class="trouble">
+  <div class="trouble-q">⚠ psql: error: connection refused</div>
+  <div class="trouble-a">
+    PostgreSQL is not running. Start it:
+    <pre><span class="comment"># macOS</span>
+<span class="cmd">brew services start postgresql@16</span>
+<span class="comment"># Linux</span>
+<span class="cmd">sudo systemctl start postgresql</span></pre>
+  </div>
+</div>
+
+<div class="trouble">
+  <div class="trouble-q">⚠ extension "vector" does not exist</div>
+  <div class="trouble-a">
+    pgvector is not installed or not enabled in this database.
+    <pre><span class="comment"># macOS — install the package</span>
+<span class="cmd">brew install pgvector</span>
+<span class="comment"># Then enable it in the database</span>
+<span class="cmd">psql -d credit_rewards -c "CREATE EXTENSION vector;"</span></pre>
+  </div>
+</div>
+
+<div class="trouble">
+  <div class="trouble-q">⚠ LLM provider 'gemini' is not configured: GEMINI_API_KEY is not set</div>
+  <div class="trouble-a">
+    Open <code>.env</code> and add your key:
+    <pre><span class="var">GEMINI_API_KEY</span>=<span class="val">your_key_here</span></pre>
+  </div>
+</div>
+
+<div class="trouble">
+  <div class="trouble-q">⚠ streamlit: bad interpreter — or — uvicorn: command not found</div>
+  <div class="trouble-a">
+    The venv was moved or is corrupted. Recreate it:
+    <pre><span class="cmd">rm -rf .venv
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt</span></pre>
+  </div>
+</div>
+
+<div class="trouble">
+  <div class="trouble-q">⚠ SSL: CERTIFICATE_VERIFY_FAILED (corporate proxy)</div>
+  <div class="trouble-a">
+    The project uses <code>truststore</code> to inject the OS certificate store automatically. If the error persists:
+    <pre><span class="cmd">pip install truststore</span>
+<span class="comment"># Or set the CA bundle path in .env</span>
+<span class="var">REQUESTS_CA_BUNDLE</span>=<span class="val">/path/to/corporate-ca.pem</span></pre>
+  </div>
+</div>
+
+<div class="trouble">
+  <div class="trouble-q">⚠ pip fails to build "tokenizers" from source</div>
+  <div class="trouble-a">
+    Use pre-built binary wheels to skip the Rust compilation:
+    <pre><span class="cmd">pip install --only-binary=:all: -r requirements.txt</span></pre>
+  </div>
+</div>
+
+<div class="trouble">
+  <div class="trouble-q">⚠ seed.py runs but reward_rules count is 0</div>
+  <div class="trouble-a">
+    Run the LLM-powered extraction step (requires an API key):
+    <pre><span class="cmd">python3 seed.py --extract</span></pre>
+  </div>
+</div>
+
+<!-- ENV REF -->
+<h2 id="envref">Environment Variables — Full Reference</h2>
+<table>
+  <tr><th>Variable</th><th>Default</th><th>Description</th></tr>
+  <tr><td class="key">LLM_MODEL</td><td class="default">anthropic/claude-opus-4-8</td><td>LiteLLM model string <code>provider/model</code></td></tr>
+  <tr><td class="key">ANTHROPIC_API_KEY</td><td class="default">—</td><td>Anthropic API key</td></tr>
+  <tr><td class="key">OPENAI_API_KEY</td><td class="default">—</td><td>OpenAI API key</td></tr>
+  <tr><td class="key">GEMINI_API_KEY</td><td class="default">—</td><td>Google Gemini API key</td></tr>
+  <tr><td class="key">OLLAMA_API_BASE</td><td class="default">http://localhost:11434</td><td>Ollama server URL (local models)</td></tr>
+  <tr><td class="key">CLAUDE_THINKING</td><td class="default">false</td><td>Enable extended thinking — Anthropic only</td></tr>
+  <tr><td class="key">LLM_TIMEOUT</td><td class="default">90</td><td>LLM call timeout in seconds</td></tr>
+  <tr><td class="key">LLM_NUM_RETRIES</td><td class="default">2</td><td>Retry count on LLM failure</td></tr>
+  <tr><td class="key">PGHOST</td><td class="default">localhost</td><td>PostgreSQL host</td></tr>
+  <tr><td class="key">PGPORT</td><td class="default">5432</td><td>PostgreSQL port</td></tr>
+  <tr><td class="key">PGDATABASE</td><td class="default">credit_rewards</td><td>Database name</td></tr>
+  <tr><td class="key">PGUSER</td><td class="default">(OS user)</td><td>PostgreSQL user — run <code>whoami</code></td></tr>
+  <tr><td class="key">PGPASSWORD</td><td class="default">—</td><td>Leave blank for Homebrew / socket auth</td></tr>
+  <tr><td class="key">EMBED_BACKEND</td><td class="default">auto</td><td><code>auto</code> / <code>fastembed</code> / <code>hashing</code></td></tr>
+  <tr><td class="key">EMBED_MODEL</td><td class="default">BAAI/bge-small-en-v1.5</td><td>Embedding model name</td></tr>
+  <tr><td class="key">EMBED_DIM</td><td class="default">384</td><td>Embedding vector dimension</td></tr>
+</table>
+
+<!-- CHECKLIST -->
+<h2 id="checklist">Quick-Start Checklist</h2>
+<div class="checklist">
+  <h3>Run through this before your first demo</h3>
+  <div class="check-item"><div class="check-box"></div><div class="check-label">Python 3.11+ installed — <code>python3 --version</code></div></div>
+  <div class="check-item"><div class="check-box"></div><div class="check-label">PostgreSQL 16+ installed and running — <code>psql --version</code></div></div>
+  <div class="check-item"><div class="check-box"></div><div class="check-label">pgvector installed — <code>brew install pgvector</code> or <code>apt install postgresql-16-pgvector</code></div></div>
+  <div class="check-item"><div class="check-box"></div><div class="check-label">Project cloned / unzipped</div></div>
+  <div class="check-item"><div class="check-box"></div><div class="check-label">Virtual environment created — <code>python3 -m venv .venv &amp;&amp; source .venv/bin/activate</code></div></div>
+  <div class="check-item"><div class="check-box"></div><div class="check-label">Dependencies installed — <code>pip install -r requirements.txt</code></div></div>
+  <div class="check-item"><div class="check-box"></div><div class="check-label">Database created — <code>createdb credit_rewards</code></div></div>
+  <div class="check-item"><div class="check-box"></div><div class="check-label">pgvector enabled — <code>psql -d credit_rewards -c "CREATE EXTENSION vector;"</code></div></div>
+  <div class="check-item"><div class="check-box"></div><div class="check-label"><code>.env</code> configured — LLM key + PGUSER set</div></div>
+  <div class="check-item"><div class="check-box"></div><div class="check-label">Seed pipeline run — <code>python3 seed.py</code></div></div>
+  <div class="check-item"><div class="check-box"></div><div class="check-label">App running — <code>python3 -m streamlit run app/streamlit_app.py</code></div></div>
+  <div class="check-item"><div class="check-box"></div><div class="check-label">Browser shows 🟢 connected + 🟢 LLM ready at <strong>http://localhost:8501</strong></div></div>
+</div>
+
+<hr>
+<p style="text-align:center; color:#9ca3af; font-size:11px;">
+  To save as PDF: press <strong>Cmd+P</strong> (Mac) or <strong>Ctrl+P</strong> (Windows) → Save as PDF
+</p>
+
+<script>
+function switchOS(event, id) {
+  // Find the parent container of the clicked tab
+  const clickedTab = event.target;
+  const tabGroup = clickedTab.parentElement;
+
+  // Find all panels that are siblings of the tab group or nearby
+  // We'll use a different approach: find panels by looking for the next sibling divs
+  const allTabs = tabGroup.querySelectorAll('.os-tab');
+  allTabs.forEach(t => t.classList.remove('active'));
+  clickedTab.classList.add('active');
+
+  // Find panels: they follow the tab group in the DOM
+  let sibling = tabGroup.nextElementSibling;
+  const panels = [];
+  while (sibling && sibling.classList.contains('os-panel')) {
+    panels.push(sibling);
+    sibling = sibling.nextElementSibling;
+  }
+
+  panels.forEach(p => p.classList.remove('active'));
+  const target = document.getElementById('os-' + id);
+  if (target) target.classList.add('active');
+}
+</script>
+</body>
+</html>

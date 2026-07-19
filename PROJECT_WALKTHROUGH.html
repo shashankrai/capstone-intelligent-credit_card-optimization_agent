@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Capstone Project: Requirement → Implementation Map</title>
+<style>
+  :root {
+    --blue: #1a56db;
+    --dark: #111827;
+    --mid: #374151;
+    --light: #6b7280;
+    --bg: #f9fafb;
+    --border: #e5e7eb;
+    --green: #065f46;
+    --green-bg: #ecfdf5;
+    --green-border: #6ee7b7;
+    --yellow: #78350f;
+    --yellow-bg: #fffbeb;
+    --yellow-border: #fcd34d;
+    --purple: #4c1d95;
+    --purple-bg: #f5f3ff;
+    --purple-border: #c4b5fd;
+    --code-bg: #1e293b;
+    --code-fg: #e2e8f0;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    font-size: 13px;
+    line-height: 1.6;
+    color: var(--dark);
+    background: white;
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 32px 40px;
+  }
+  /* Cover */
+  .cover {
+    background: linear-gradient(135deg, #1e3a8a 0%, #1a56db 60%, #2563eb 100%);
+    color: white;
+    border-radius: 12px;
+    padding: 40px 48px;
+    margin-bottom: 40px;
+  }
+  .cover h1 { font-size: 26px; font-weight: 700; margin-bottom: 6px; }
+  .cover .subtitle { font-size: 15px; opacity: 0.85; margin-bottom: 24px; }
+  .cover .badges { display: flex; flex-wrap: wrap; gap: 8px; }
+  .badge {
+    background: rgba(255,255,255,0.15);
+    border: 1px solid rgba(255,255,255,0.3);
+    border-radius: 20px;
+    padding: 3px 12px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+  }
+  /* Section headers */
+  h2 {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--dark);
+    margin: 40px 0 12px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid var(--blue);
+    page-break-after: avoid;
+  }
+  h3 {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--mid);
+    margin: 20px 0 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    page-break-after: avoid;
+  }
+  h4 {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--dark);
+    margin: 16px 0 6px;
+    page-break-after: avoid;
+  }
+  p { margin-bottom: 10px; color: var(--mid); }
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 12px 0 20px;
+    font-size: 12px;
+    page-break-inside: avoid;
+  }
+  th {
+    background: var(--dark);
+    color: white;
+    text-align: left;
+    padding: 8px 12px;
+    font-weight: 600;
+    font-size: 11px;
+    letter-spacing: 0.3px;
+  }
+  td {
+    padding: 7px 12px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+  tr:nth-child(even) td { background: var(--bg); }
+  td code, th code { background: rgba(0,0,0,0.08); padding: 1px 5px; border-radius: 3px; font-size: 11px; }
+  /* Code blocks */
+  pre {
+    background: var(--code-bg);
+    color: var(--code-fg);
+    border-radius: 8px;
+    padding: 16px 20px;
+    font-size: 11.5px;
+    line-height: 1.65;
+    overflow-x: auto;
+    margin: 12px 0 20px;
+    page-break-inside: avoid;
+  }
+  pre code { background: none; padding: 0; color: inherit; font-size: inherit; }
+  code {
+    background: #f1f5f9;
+    color: #0f172a;
+    padding: 1px 6px;
+    border-radius: 4px;
+    font-family: "SF Mono", Menlo, Monaco, "Courier New", monospace;
+    font-size: 12px;
+  }
+  /* Info boxes */
+  .callout {
+    border-left: 4px solid;
+    border-radius: 0 8px 8px 0;
+    padding: 12px 16px;
+    margin: 16px 0;
+    page-break-inside: avoid;
+  }
+  .callout.green  { border-color: #10b981; background: var(--green-bg); color: var(--green); }
+  .callout.yellow { border-color: #f59e0b; background: var(--yellow-bg); color: var(--yellow); }
+  .callout.purple { border-color: #7c3aed; background: var(--purple-bg); color: var(--purple); }
+  .callout.blue   { border-color: #2563eb; background: #eff6ff; color: #1e3a8a; }
+  .callout strong { font-weight: 700; display: block; margin-bottom: 3px; }
+  /* Grid cards */
+  .cards { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 16px 0; }
+  .card {
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px 16px;
+    page-break-inside: avoid;
+  }
+  .card .card-title { font-weight: 700; font-size: 12px; margin-bottom: 4px; color: var(--dark); }
+  .card .card-file  { color: var(--blue); font-size: 11px; font-family: monospace; margin-bottom: 4px; }
+  .card p { font-size: 11.5px; margin: 0; }
+  /* Stage pills */
+  .stage {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 700;
+    margin-right: 6px;
+  }
+  .stage.done { background: #dcfce7; color: #166534; }
+  .stage.s1 { background: #dbeafe; color: #1e40af; }
+  .stage.s2 { background: #ede9fe; color: #5b21b6; }
+  .stage.s3 { background: #fef3c7; color: #92400e; }
+  /* Section divider */
+  hr { border: none; border-top: 1px solid var(--border); margin: 32px 0; }
+  /* Flow diagram */
+  .flow {
+    background: var(--code-bg);
+    color: #94a3b8;
+    border-radius: 8px;
+    padding: 20px 24px;
+    font-family: "SF Mono", Menlo, Monaco, monospace;
+    font-size: 11.5px;
+    line-height: 1.8;
+    margin: 12px 0 20px;
+    page-break-inside: avoid;
+  }
+  .flow .node { color: #67e8f9; font-weight: 700; }
+  .flow .file { color: #a5b4fc; }
+  .flow .arrow { color: #475569; }
+  .flow .cond { color: #fde68a; }
+  .flow .end  { color: #86efac; }
+  /* Print */
+  @media print {
+    body { padding: 0; }
+    h2 { page-break-before: always; }
+    h2:first-of-type { page-break-before: avoid; }
+    pre, table, .card, .callout, .flow { page-break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+
+<!-- COVER -->
+<div class="cover">
+  <h1>Capstone Project: Requirement → Implementation Map</h1>
+  <div class="subtitle">Intelligent Credit Card &amp; Rewards Optimization Agent — Every PDF requirement mapped to exact file &amp; function</div>
+  <div class="badges">
+    <span class="badge">LangGraph</span>
+    <span class="badge">RAG + pgvector</span>
+    <span class="badge">FastAPI</span>
+    <span class="badge">Streamlit</span>
+    <span class="badge">Human-in-the-Loop</span>
+    <span class="badge">Guardrails</span>
+    <span class="badge">Monitoring</span>
+    <span class="badge">Evaluation</span>
+    <span class="badge">5 Cards Loaded</span>
+    <span class="badge">55 Reward Rules</span>
+  </div>
+</div>
+
+<!-- SECTION 1 -->
+<h2>1. What the Project Does</h2>
+<div class="callout blue">
+  <strong>The one-liner</strong>
+  A user asks: <em>"I am spending ₹50,000 on flights. I have Axis Atlas, HDFC DCB, and SBI Cashback. Which card should I use?"</em> — and the system gives an explainable, calculated, grounded answer. Not from memory. From retrieved documents.
+</div>
+<p>The system must combine three abilities the PDF emphasises:</p>
+<table>
+  <tr><th>Ability</th><th>Why it's hard</th><th>How we solve it</th></tr>
+  <tr><td><strong>Retrieve the correct rule</strong></td><td>Flight rule ≠ hotel rule ≠ rent rule; different per card</td><td>Hybrid RAG + SQL lookup from <code>reward_rules</code> table</td></tr>
+  <tr><td><strong>Reason with numbers</strong></td><td>LLMs make arithmetic errors; caps / exclusions vary</td><td>Deterministic calculator tool — LLM never does math</td></tr>
+  <tr><td><strong>Avoid hallucination</strong></td><td>Card terms change; LLM may invent rates</td><td>Evidence gate + post-generation guardrail LLM check</td></tr>
+</table>
+
+<!-- SECTION 2 -->
+<h2>2. Tech Stack — PDF Requirement vs What Is Built</h2>
+<table>
+  <tr><th>PDF Recommended</th><th>What Is Built</th><th>File</th></tr>
+  <tr><td>Python + FastAPI</td><td>FastAPI REST API</td><td><code>backend/main.py</code></td></tr>
+  <tr><td>LangGraph orchestration</td><td>Stateful graph with MemorySaver checkpointer</td><td><code>agents/graph.py</code></td></tr>
+  <tr><td>PostgreSQL + pgvector</td><td>All data in PostgreSQL; cosine search via pgvector</td><td><code>database/db.py</code></td></tr>
+  <tr><td>SQLAlchemy ORM</td><td>ORM models for user_profiles and feedback</td><td><code>database/models.py</code></td></tr>
+  <tr><td>PyMuPDF for PDF parsing</td><td><code>pymupdf</code> used in <code>extract_pages()</code></td><td><code>rag/ingest_pdfs.py</code></td></tr>
+  <tr><td>Local embedding model</td><td>BAAI/bge-small-en-v1.5 via fastembed; hashing fallback (no API key)</td><td><code>rag/embeddings.py</code></td></tr>
+  <tr><td>Hybrid keyword + vector search</td><td>Cosine distance + +0.03 keyword boost, re-ranked</td><td><code>rag/retrieval.py</code></td></tr>
+  <tr><td>LangGraph HITL node</td><td><code>interrupt()</code> in clarify + approval nodes</td><td><code>agents/nodes.py</code></td></tr>
+  <tr><td>Streamlit UI</td><td>Full UI with HITL buttons, monitoring, dynamic card add</td><td><code>app/streamlit_app.py</code></td></tr>
+  <tr><td>OpenAI / Gemini / local LLM</td><td>LiteLLM wrapper — switch provider by editing <code>.env</code></td><td><code>llm.py</code></td></tr>
+  <tr><td>Custom PostgreSQL monitoring</td><td>Every query logged with latency + tokens + result</td><td><code>monitoring/logger.py</code></td></tr>
+  <tr><td>RAGAS / custom evaluation</td><td>4 scripts: retrieval, calculation, hallucination, golden</td><td><code>evaluation/</code></td></tr>
+</table>
+<div class="callout green">
+  <strong>Current configuration</strong>
+  LLM: <code>gemini/gemini-2.5-flash</code> (Gemini free tier). DB: PostgreSQL with 5 cards, 55 reward rules. Embeddings: hashing backend (no model download needed on corporate network). Switch provider anytime by changing <code>LLM_MODEL</code> in <code>.env</code>.
+</div>
+
+<!-- SECTION 3 -->
+<h2>3. Data Sources — 5 Cards Loaded</h2>
+<table>
+  <tr><th>Card</th><th>File in <code>data/cards/</code></th><th>Rules Extracted</th></tr>
+  <tr><td>Axis Atlas</td><td><code>axis_atlas.md</code></td><td>via <code>rag/extract_rules.py</code></td></tr>
+  <tr><td>HDFC Diners Club Black</td><td><code>hdfc_diners_club_black.md</code></td><td>via <code>rag/extract_rules.py</code></td></tr>
+  <tr><td>HDFC Infinia</td><td><code>hdfc_infinia.md</code></td><td>via <code>rag/extract_rules.py</code></td></tr>
+  <tr><td>American Express Platinum Travel</td><td><code>amex_platinum_travel.md</code></td><td>via <code>rag/extract_rules.py</code></td></tr>
+  <tr><td>SBI Cashback</td><td><code>sbi_cashback.md</code></td><td>via <code>rag/extract_rules.py</code></td></tr>
+</table>
+<div class="callout yellow">
+  <strong>Important — rules are NOT hardcoded in prompts</strong>
+  The LLM extracts structured rules from document chunks into the <code>reward_rules</code> table (<code>rag/extract_rules.py</code>). At query time, those rules are retrieved from the DB. The LLM never sees the raw PDF — it sees retrieved, cited evidence.
+</div>
+
+<!-- SECTION 4 -->
+<h2>4. Database Tables — All 6 Tables</h2>
+<div class="callout blue">
+  <strong>PDF Section 6 + Section 12</strong> — The PDF specified 4 data tables. We implemented all 4, plus added a <code>recommendation_logs</code> table for monitoring (Stage 3).
+</div>
+
+<h3>Table 1 — document_chunks (RAG vector store)</h3>
+<p>Stores PDF text split into chunks with embeddings. Used for vector similarity search.</p>
+<table>
+  <tr><th>Column</th><th>Type</th><th>Purpose</th></tr>
+  <tr><td><code>chunk_id</code></td><td>UUID</td><td>Primary key</td></tr>
+  <tr><td><code>document_id</code></td><td>UUID FK</td><td>Links to card_documents</td></tr>
+  <tr><td><code>card_name</code></td><td>text</td><td>For card-filtered retrieval</td></tr>
+  <tr><td><code>chunk_text</code></td><td>text</td><td>The actual text content (≈900 chars)</td></tr>
+  <tr><td><code>page_number</code></td><td>int</td><td>Source citation in answers</td></tr>
+  <tr><td><code>embedding</code></td><td>vector(384)</td><td>pgvector — cosine distance search</td></tr>
+  <tr><td><code>metadata_json</code></td><td>jsonb</td><td>Extra metadata</td></tr>
+</table>
+
+<h3>Table 2 — reward_rules (structured extracted rules)</h3>
+<p>Clean structured rules extracted by LLM from document chunks. Used by the calculator.</p>
+<table>
+  <tr><th>Column</th><th>Purpose</th></tr>
+  <tr><td><code>card_name</code>, <code>spend_category</code></td><td>Lookup key for a specific card + category (e.g., Axis Atlas + flights)</td></tr>
+  <tr><td><code>reward_rate</code>, <code>reward_unit</code></td><td>e.g., 5 points per ₹100</td></tr>
+  <tr><td><code>cap_type</code>, <code>cap_value</code></td><td>Monthly / annual cap on rewards</td></tr>
+  <tr><td><code>exclusion_flag</code></td><td>True if category is excluded from rewards</td></tr>
+  <tr><td><code>milestone_flag</code></td><td>True if a milestone benefit applies</td></tr>
+  <tr><td><code>source_chunk_id</code></td><td>Citation — which chunk this rule came from</td></tr>
+  <tr><td><code>confidence_score</code></td><td>LLM's extraction confidence (0–1)</td></tr>
+</table>
+
+<h3>Table 3 — transfer_partners</h3>
+<p>Point transfer rules for airline and hotel loyalty programs.</p>
+<table>
+  <tr><th>Column</th><th>Purpose</th></tr>
+  <tr><td><code>partner_name</code>, <code>partner_type</code></td><td>e.g., Air India, airline</td></tr>
+  <tr><td><code>transfer_ratio</code></td><td>e.g., 2.0 = 2 partner units per 1 reward point</td></tr>
+  <tr><td><code>minimum_points</code>, <code>maximum_points</code></td><td>Transfer thresholds</td></tr>
+  <tr><td><code>effective_date</code></td><td>Shown in answers to flag potentially stale data</td></tr>
+</table>
+
+<h3>Table 4 — user_profiles (memory)</h3>
+<table>
+  <tr><th>Column</th><th>Purpose</th></tr>
+  <tr><td><code>user_id</code></td><td>e.g., "alice" — entered in Streamlit sidebar</td></tr>
+  <tr><td><code>cards_owned</code></td><td>JSONB list of cards the user holds</td></tr>
+  <tr><td><code>preferred_reward_type</code></td><td>"airline miles" / "hotel points" / "cashback"</td></tr>
+  <tr><td><code>monthly_spend_pattern</code></td><td>JSONB — typical spends per category</td></tr>
+  <tr><td><code>conversation_summary</code></td><td>LLM-generated summary from last session</td></tr>
+</table>
+
+<h3>Table 5 — recommendation_logs (monitoring)</h3>
+<p>Every completed agent run is logged here. Shown in the Streamlit sidebar dashboard.</p>
+<code>query_id · user_id · query_text · intent · recommended_card · estimated_value · confidence_score · latency_ms · token_usage · guardrail_result · created_at</code>
+
+<!-- SECTION 5 -->
+<h2>5. System Architecture — 5 Layers</h2>
+
+<h3>Layer 1 — Data Ingestion</h3>
+<div class="flow">
+<span class="node">PDF / Markdown file</span>
+        │
+        ▼
+<span class="node">extract_pages()</span>         <span class="file">← rag/ingest_pdfs.py  (PyMuPDF)</span>
+        │
+        ▼
+<span class="node">chunk_text()</span>            <span class="file">← rag/ingest_pdfs.py  (900 chars, 150 overlap)</span>
+        │
+        ▼
+<span class="node">embed_texts()</span>           <span class="file">← rag/embeddings.py   (fastembed or hashing)</span>
+        │
+        ▼
+<span class="node">INSERT document_chunks</span>  <span class="file">← pgvector IVFFlat index built automatically</span>
+        │
+        ▼
+<span class="node">extract_card()</span>          <span class="file">← rag/extract_rules.py  (LLM extracts structured rules)</span>
+        │
+        ▼
+<span class="node">INSERT reward_rules</span>     <span class="file">← 55 rules for 5 cards currently in DB</span></div>
+<p><strong>Entry point:</strong> <code>seed.py</code> → run with <code>make seed</code>. Dynamic add from UI: <code>rag/add_card.py</code></p>
+
+<h3>Layer 2 — Retrieval (Hybrid)</h3>
+<div class="flow">
+User query
+     │
+     ▼
+<span class="node">embed_query()</span>             <span class="file">← rag/embeddings.py</span>
+     │
+     ▼
+<span class="node">cosine distance SQL</span>       <span class="file">← pgvector  SELECT ... ORDER BY embedding &lt;=&gt; $1</span>
+     │
+     ▼
+<span class="node">keyword boost</span>             +0.03 per keyword hit → re-ranked
+     │
+     ▼
+<span class="node">top-K chunks</span>              default top_k = 6
+
+<span class="cond">Parallel SQL lookups also run in retrieve_node:</span>
+  <span class="node">fetch_rule()</span>              <span class="file">← tools/retriever.py  (reward_rules per card+category)</span>
+  <span class="node">fetch_transfer_partners()</span> <span class="file">← tools/retriever.py  (transfer_partners table)</span></div>
+
+<h3>Layer 3 — LangGraph Agent Reasoning</h3>
+<div class="flow">
+<span class="node">START</span>
+  │
+  ▼
+<span class="node">[memory_load]</span>   <span class="file">← loads user profile from DB</span>
+  │
+  ▼
+<span class="node">[classify]</span>      <span class="file">← LLM parses intent, spend items, card names, safety flags</span>
+  │
+  ├─ <span class="cond">off-topic / injection</span> ──► <span class="node">[refusal]</span> ──► <span class="end">END</span>
+  ├─ <span class="cond">needs_clarification</span>   ──► <span class="node">[clarify]</span> ──► <span class="cond">(interrupt — waits for user)</span> ──► <span class="node">[retrieve]</span>
+  └─ <span class="cond">on-topic</span>              ──► <span class="node">[retrieve]</span>
+                                  │
+                               <span class="node">[validate]</span>   <span class="file">← rule_validator.py</span>
+                                  │
+                     ├─ <span class="cond">invalid</span> ──► <span class="node">[insufficient]</span> ──► <span class="end">END</span>
+                     └─ <span class="cond">valid</span>   ──► <span class="node">[compute]</span>      <span class="file">← calculator.py called here</span>
+                                       │
+                            ├─ <span class="cond">transfer intent</span> ──► <span class="node">[approval]</span> <span class="cond">(interrupt)</span>
+                            │                           ├─ <span class="cond">yes</span> ──► <span class="node">[generate]</span>
+                            │                           └─ <span class="cond">no</span>  ──► <span class="node">[cancelled]</span> ──► <span class="end">END</span>
+                            └─ <span class="cond">other</span>          ──────────► <span class="node">[generate]</span>
+                                                               │
+                                                           <span class="node">[guardrail]</span>
+                                                               │
+                                                           <span class="node">[persist]</span>   <span class="file">← upserts user profile</span>
+                                                               │
+                                                             <span class="end">END</span></div>
+
+<h3>Layer 4 — Tool Use (No LLM Math)</h3>
+<div class="callout yellow">
+  <strong>PDF requirement</strong> "The agent should NOT do calculations inside the LLM response. It should call a calculator tool."
+</div>
+<p><strong>Calculator tool</strong> — <code>tools/calculator.py → compute_reward()</code></p>
+<pre><code># Input (from reward_rules DB row):
+spend            = 50000
+reward_rate      = 5          # points
+reward_per_amount = 100       # per ₹100
+point_value      = 1.0        # ₹1 per point
+monthly_cap      = 5000       # max points
+
+# Output — fully deterministic:
+units_earned      = 2500
+reward_value_rs   = 2500.0
+cap_applied       = False
+excluded          = False
+effective_return  = 5.0%      # reward_value / spend * 100</code></pre>
+<p><strong>Transfer calculator</strong> — <code>tools/transfer_calculator.py → compare_transfers()</code> ranks all partners by output value.</p>
+<p><strong>Evidence gate</strong> — <code>tools/rule_validator.py → validate_evidence()</code> hard-stops if no chunk scores above <code>MIN_SIMILARITY=0.30</code> — prevents guessing.</p>
+
+<h3>Layer 5 — Final Recommendation</h3>
+<p>The <code>ANSWER_SYSTEM</code> prompt in <code>agents/prompts.py</code> mandates this exact structure:</p>
+<pre><code>## Recommended Card
+## Estimated Reward Value
+## How the Calculation Was Done   ← shows every number
+## Rules Used                     ← cites retrieved chunks by index
+## Caps and Exclusions
+## Assumptions
+## Alternative Option
+## Confidence Level</code></pre>
+
+<!-- SECTION 6 -->
+<h2>6. LangGraph Nodes — All 13 Nodes</h2>
+<p>All wired in <code>agents/graph.py → build_graph()</code>. All implemented in <code>agents/nodes.py</code>.</p>
+<table>
+  <tr><th>Node</th><th>Function in nodes.py</th><th>What It Does</th></tr>
+  <tr><td><code>memory_load</code></td><td><code>memory_load_node</code></td><td>Fetches user profile from <code>user_profiles</code> table, seeds preferences into state</td></tr>
+  <tr><td><code>classify</code></td><td><code>classify_node</code></td><td>LLM call with <code>CLASSIFY_SCHEMA</code> — extracts intent, spend items, card names, injection flags</td></tr>
+  <tr><td><code>refusal</code></td><td><code>refusal_node</code></td><td>Canned block message for off-topic or prompt injection attempts</td></tr>
+  <tr><td><code>clarify</code></td><td><code>clarify_node</code></td><td><code>interrupt()</code> — graph pauses, question shown in UI; resumes with user's answer</td></tr>
+  <tr><td><code>retrieve</code></td><td><code>retrieve_node</code></td><td>Hybrid RAG + SQL rules + transfer partners all fetched here</td></tr>
+  <tr><td><code>validate</code></td><td><code>validate_node</code></td><td>Calls <code>rule_validator.validate_evidence()</code> — sets <code>validation.valid</code> and <code>confidence</code></td></tr>
+  <tr><td><code>insufficient</code></td><td><code>insufficient_node</code></td><td>Emits "not enough information" message, halts graph — agent does not guess</td></tr>
+  <tr><td><code>compute</code></td><td><code>compute_node</code></td><td>Loops every spend item × every card, calls <code>compute_for_rule()</code>, builds allocation + totals</td></tr>
+  <tr><td><code>approval</code></td><td><code>approval_node</code></td><td><code>interrupt()</code> — shows Approve / Cancel buttons in UI before any transfer recommendation</td></tr>
+  <tr><td><code>cancelled</code></td><td><code>cancelled_node</code></td><td>Emits cancellation message when user declines transfer</td></tr>
+  <tr><td><code>generate</code></td><td><code>generate_node</code></td><td>Final grounded LLM answer using <code>ANSWER_SYSTEM</code>; extended thinking enabled for Anthropic</td></tr>
+  <tr><td><code>guardrail</code></td><td><code>guardrail_node</code></td><td>Post-generation LLM review: groundedness, caps, safe framing, disclaimer, hallucination check</td></tr>
+  <tr><td><code>persist</code></td><td><code>persist_node</code></td><td>LLM summarises conversation, upserts user profile for next session memory</td></tr>
+</table>
+
+<!-- SECTION 7 -->
+<h2>7. Prompting Strategy — All System Prompts</h2>
+<p>File: <code>agents/prompts.py</code></p>
+<table>
+  <tr><th>Prompt Constant</th><th>Used In Node</th><th>Purpose</th></tr>
+  <tr><td><code>CLASSIFY_SYSTEM</code> + <code>CLASSIFY_SCHEMA</code></td><td><code>classify_node</code></td><td>JSON-structured intent parsing; <code>on_topic</code> flag detects injection attempts</td></tr>
+  <tr><td><code>ANSWER_SYSTEM</code></td><td><code>generate_node</code></td><td>Forces grounded, structured answer; forbids inventing numbers; mandates assumptions section</td></tr>
+  <tr><td><code>GUARDRAIL_SYSTEM</code> + <code>GUARDRAIL_SCHEMA</code></td><td><code>guardrail_node</code></td><td>Verifies: grounded, no hallucinated rates, caps mentioned, exclusions mentioned, safe framing</td></tr>
+  <tr><td><code>SUMMARY_SYSTEM</code></td><td><code>persist_node</code></td><td>Extracts durable user facts (cards, preferences) for memory storage</td></tr>
+  <tr><td><code>EXTRACT_SYSTEM</code> + <code>EXTRACT_SCHEMA</code></td><td><code>rag/extract_rules.py</code></td><td>LLM extracts structured reward rules from document chunks into the DB</td></tr>
+</table>
+
+<!-- SECTION 8 -->
+<h2>8. Human-in-the-Loop (HITL)</h2>
+<p>PDF specifies two HITL scenarios. Both use LangGraph's <code>interrupt()</code> mechanism.</p>
+<div class="cards">
+  <div class="card">
+    <div class="card-title">Scenario 1: Clarification</div>
+    <div class="card-file">agents/nodes.py → clarify_node</div>
+    <p>When intent is clear but preferences are missing. Graph pauses, Streamlit shows a text input. User types answer. <code>resume_agent("hotel points")</code> called. Graph continues from where it stopped.</p>
+  </div>
+  <div class="card">
+    <div class="card-title">Scenario 2: Transfer Approval</div>
+    <div class="card-file">agents/nodes.py → approval_node</div>
+    <p>Before any point transfer recommendation. Graph literally cannot route to <code>generate</code> without an explicit yes/no. Streamlit shows green Approve and red Cancel buttons.</p>
+  </div>
+</div>
+<p>Both interrupts are surfaced via <code>interrupted</code>, <code>needs_clarification</code>, <code>needs_approval</code> flags in <code>AgentState</code>. Resume via <code>POST /resume</code> API or <code>resume_agent()</code> in <code>agents/graph.py</code>.</p>
+
+<!-- SECTION 9 -->
+<h2>9. Guardrails — Every Rule from PDF</h2>
+<table>
+  <tr><th>PDF Guardrail Rule</th><th>Where Enforced</th><th>Mechanism</th></tr>
+  <tr><td>Do not answer without retrieved evidence</td><td><code>validate_node</code> + <code>rule_validator.py</code></td><td>Hard routing: <code>valid=false</code> → <code>insufficient_node</code>, graph ends</td></tr>
+  <tr><td>Do not invent reward rates</td><td><code>ANSWER_SYSTEM</code> + <code>GUARDRAIL_SYSTEM</code></td><td>Prompt forbids it; separate guardrail LLM verifies after generation</td></tr>
+  <tr><td>Do not invent transfer partners</td><td><code>ANSWER_SYSTEM</code> + <code>GUARDRAIL_SYSTEM</code></td><td>Same dual enforcement</td></tr>
+  <tr><td>Do not ignore exclusions</td><td><code>compute_node</code> + <code>ANSWER_SYSTEM</code></td><td>Calculator sets <code>excluded=True</code>; prompt mandates mentioning it</td></tr>
+  <tr><td>Do not ignore caps</td><td><code>compute_node</code> + <code>ANSWER_SYSTEM</code></td><td>Calculator sets <code>cap_applied=True</code>; prompt mandates mentioning it</td></tr>
+  <tr><td>Do not present as financial advice</td><td><code>GUARDRAIL_SCHEMA</code> <code>safe_framing</code> field</td><td>Guardrail LLM checks; appends disclaimer warning if false</td></tr>
+  <tr><td>Mention effective date</td><td><code>tools/retriever.py → effective_dates_for()</code></td><td>Dates pulled into retrieve context automatically</td></tr>
+  <tr><td>Ask approval before transfer</td><td><code>approval_node</code> with <code>interrupt()</code></td><td>Structural — graph cannot route past this node without user input</td></tr>
+</table>
+
+<!-- SECTION 10 -->
+<h2>10. Monitoring Dashboard</h2>
+<p>File: <code>monitoring/logger.py → log_recommendation()</code> — called in <code>agents/graph.py → _finalize()</code> after every completed run.</p>
+<div class="cards">
+  <div class="card">
+    <div class="card-title">What is logged per query</div>
+    <p>query_text · intent · retrieved_chunk_ids · recommended_card · estimated_value · confidence · guardrail_result · latency_ms · output_tokens · final_answer</p>
+  </div>
+  <div class="card">
+    <div class="card-title">Where it is visible</div>
+    <p>Streamlit sidebar: last 8 queries with avg latency, avg tokens, feedback ratio. API: <code>GET /logs</code>. Also: thumbs up/down feedback stored in <code>feedback</code> table via <code>database/models.py</code>.</p>
+  </div>
+</div>
+
+<!-- SECTION 11 -->
+<h2>11. Evaluation — 4 Scripts</h2>
+<p>Run with: <code>make eval</code></p>
+<table>
+  <tr><th>PDF Requirement</th><th>Script</th><th>Metrics</th></tr>
+  <tr><td>Retrieval evaluation</td><td><code>evaluation/rag_eval.py</code></td><td>Precision@K, Recall@K, MRR against <code>retrieval_labels.csv</code></td></tr>
+  <tr><td>Calculation correctness</td><td><code>evaluation/calculation_eval.py</code></td><td>Exact match within ±₹0.01 and ±0.1% return against <code>calculation_cases.csv</code></td></tr>
+  <tr><td>Hallucination detection</td><td><code>evaluation/hallucination_eval.py</code></td><td>LLM-as-judge: faithful / hallucinated ratio for sample queries</td></tr>
+  <tr><td>Golden test cases end-to-end</td><td><code>evaluation/evaluate.py</code></td><td>Full agent runs against <code>golden_answers.csv</code>; checks intent + recommended_card accuracy</td></tr>
+</table>
+<p>Unit tests (no DB / API key needed): <code>make test</code> → <code>tests/test_calculator.py</code> + <code>tests/test_retrieval.py</code></p>
+
+<!-- SECTION 12 -->
+<h2>12. APIs — FastAPI Backend</h2>
+<p>File: <code>backend/main.py</code> — run with <code>make api</code> (port 8000)</p>
+<table>
+  <tr><th>Endpoint</th><th>Method</th><th>Purpose</th></tr>
+  <tr><td><code>/health</code></td><td>GET</td><td>DB ping + list of loaded cards</td></tr>
+  <tr><td><code>/ask</code></td><td>POST</td><td>Start a new agent run; may return <code>interrupted=true</code> for HITL</td></tr>
+  <tr><td><code>/resume</code></td><td>POST</td><td>Resume a paused run with user's clarification or approval answer</td></tr>
+  <tr><td><code>/feedback</code></td><td>POST</td><td>Record thumbs-up / thumbs-down for a query_id</td></tr>
+  <tr><td><code>/cards/add_web</code></td><td>POST</td><td>Ingest a new card by name — agent web-searches the terms</td></tr>
+  <tr><td><code>/cards/add_pdf</code></td><td>POST</td><td>Ingest a new card from an uploaded PDF</td></tr>
+  <tr><td><code>/logs</code></td><td>GET</td><td>Recent recommendation logs for monitoring</td></tr>
+</table>
+
+<!-- SECTION 13 -->
+<h2>13. Stage-Wise Delivery</h2>
+<table>
+  <tr><th>Stage</th><th>PDF Goal</th><th>Status</th><th>Key Files</th></tr>
+  <tr>
+    <td><span class="stage s1">Stage 1</span></td>
+    <td>RAG + basic agent + CLI</td>
+    <td><span class="stage done">Done</span></td>
+    <td><code>rag/</code>, <code>agents/</code>, <code>cli.py</code></td>
+  </tr>
+  <tr>
+    <td><span class="stage s2">Stage 2</span></td>
+    <td>LangGraph stateful workflow, calculator, memory, multi-turn</td>
+    <td><span class="stage done">Done</span></td>
+    <td><code>agents/graph.py</code>, <code>agents/nodes.py</code>, <code>tools/calculator.py</code>, <code>memory_load_node</code>, <code>persist_node</code></td>
+  </tr>
+  <tr>
+    <td><span class="stage s3">Stage 3</span></td>
+    <td>Streamlit UI, HITL, guardrails, monitoring, evaluation</td>
+    <td><span class="stage done">Done</span></td>
+    <td><code>app/streamlit_app.py</code>, <code>approval_node</code>, <code>guardrail_node</code>, <code>monitoring/logger.py</code>, <code>evaluation/</code></td>
+  </tr>
+</table>
+
+<!-- SECTION 14 -->
+<h2>14. Demo Flow (Section 18 of PDF)</h2>
+<table>
+  <tr><th>#</th><th>Demo Step</th><th>Where to Click / Show</th></tr>
+  <tr><td>1</td><td>Show uploaded card docs</td><td>Sidebar → "Known cards" list; <code>data/cards/</code> folder with 5 markdown files</td></tr>
+  <tr><td>2</td><td>Show ingestion pipeline</td><td>Explain <code>seed.py</code> → <code>rag/ingest_pdfs.py</code> → DB: <code>document_chunks</code> table with embeddings</td></tr>
+  <tr><td>3</td><td>Simple query + retrieved evidence</td><td>Ask flight query → expand "Retrieved evidence (RAG) &amp; guardrail" expander</td></tr>
+  <tr><td>4</td><td>Multi-turn clarification</td><td>Ask transfer query without specifying goal → agent pauses with clarification text box</td></tr>
+  <tr><td>5</td><td>Human approval buttons</td><td>Ask "I have 40,000 points, transfer them" → green Approve / red Cancel appear</td></tr>
+  <tr><td>6</td><td>Monitoring dashboard</td><td>Streamlit sidebar bottom → latency, token, feedback table from <code>recommendation_logs</code></td></tr>
+</table>
+
+<!-- SECTION 15 -->
+<h2>15. Folder Structure — Every File Explained</h2>
+<pre><code>capstone-intelligent-credit_card-optimization_agent/
+│
+├── agents/
+│   ├── graph.py       ← LangGraph graph + run_agent() / resume_agent()
+│   ├── nodes.py       ← All 13 node functions
+│   ├── prompts.py     ← All system prompts and JSON schemas
+│   └── state.py       ← AgentState TypedDict (all graph state keys)
+│
+├── tools/
+│   ├── calculator.py          ← Deterministic reward arithmetic
+│   ├── retriever.py           ← SQL lookups: rules, partners, dates
+│   ├── rule_validator.py      ← Evidence quality gate
+│   └── transfer_calculator.py ← Point transfer arithmetic + ranking
+│
+├── rag/
+│   ├── ingest_pdfs.py   ← PDF parsing, chunking, embedding, storing
+│   ├── embeddings.py    ← Local embed: fastembed or hashing
+│   ├── retrieval.py     ← Hybrid vector + keyword search
+│   ├── extract_rules.py ← LLM extracts structured rules from chunks
+│   ├── add_card.py      ← Dynamic add from UI (PDF or web search)
+│   └── collect_web.py   ← Offline web collector for card data
+│
+├── database/
+│   ├── db.py        ← psycopg3 connection, schema init, ping
+│   ├── models.py    ← SQLAlchemy ORM: UserProfile, Feedback, CRUD
+│   └── schema.sql   ← All CREATE TABLE statements
+│
+├── app/
+│   └── streamlit_app.py  ← Full Streamlit demo UI
+│
+├── backend/
+│   └── main.py           ← FastAPI endpoints
+│
+├── monitoring/
+│   └── logger.py         ← log_recommendation(), recent_logs()
+│
+├── evaluation/
+│   ├── rag_eval.py            ← Precision@K, Recall@K, MRR
+│   ├── calculation_eval.py    ← Exact match calculator tests
+│   ├── hallucination_eval.py  ← LLM-as-judge faithfulness
+│   └── evaluate.py            ← Golden answer end-to-end tests
+│
+├── tests/
+│   ├── test_calculator.py  ← Unit tests (no DB / key needed)
+│   └── test_retrieval.py   ← Integration tests (needs seeded DB)
+│
+├── data/cards/         ← 5 card markdown files + manifest.csv
+│
+├── llm.py      ← LiteLLM wrapper (provider-agnostic)
+├── config.py   ← All settings loaded from .env
+├── seed.py     ← One-shot setup: schema + ingest + extract
+├── cli.py      ← Interactive CLI with HITL support
+├── Makefile    ← make ui / cli / api / seed / test / eval
+└── .env        ← LLM_MODEL, GEMINI_API_KEY, PGDATABASE, etc.</code></pre>
+
+<hr>
+<p style="text-align:center; color: #9ca3af; font-size: 11px;">
+  Generated from project source · All file paths relative to project root · App running at http://localhost:8501
+</p>
+
+</body>
+</html>
